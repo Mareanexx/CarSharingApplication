@@ -26,7 +26,7 @@ object RetrofitClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val gson: Gson = GsonBuilder()
+    private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
         .create()
 

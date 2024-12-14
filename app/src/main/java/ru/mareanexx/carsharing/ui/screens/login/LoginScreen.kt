@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ru.mareanexx.carsharing.ui.components.auth.AuthButton
 import ru.mareanexx.carsharing.ui.components.auth.ErrorLoginText
@@ -38,8 +39,6 @@ import ru.mareanexx.carsharing.ui.theme.cherry
 import ru.mareanexx.carsharing.ui.theme.nameAboveTextField
 import ru.mareanexx.carsharing.ui.theme.white
 import ru.mareanexx.carsharing.ui.viewmodel.AuthViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.mareanexx.carsharing.ui.viewmodel.RentalHistoryViewModel
 
 @Composable
 fun AuthenticationScreen(
@@ -109,9 +108,14 @@ fun AuthenticationScreen(
 
                         // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ. Это передача user Id.
                         // Это передача userId в Personal Info экран
-                        authViewModel.userIdValue.value?.let {
+                        /* authViewModel.userIdValue.value?.let {
                             idUser -> navController?.navigate("personal_info/$idUser")
-                        }
+                        } */
+
+                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ
+                        // Это переход в CarsAtLocationScreen и передача константы idLocation = 1
+                        navController?.navigate("loc-1/cars")
+
 
                     },
                     onError = {

@@ -14,7 +14,7 @@ import ru.mareanexx.carsharing.network.RetrofitClient
 class AuthViewModel : ViewModel() {
     // хранить токен здесь можно
 
-    val userIdValue = MutableLiveData<Int>()
+    private val userIdValue = MutableLiveData<Int>()
 
     private val authApiService: AuthApiService =
         RetrofitClient.retrofit.create(AuthApiService::class.java)

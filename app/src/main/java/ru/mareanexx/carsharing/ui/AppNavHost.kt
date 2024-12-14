@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import ru.mareanexx.carsharing.ui.screens.login.HomeScreen
 import ru.mareanexx.carsharing.ui.screens.login.AuthenticationScreen
 import ru.mareanexx.carsharing.ui.screens.login.RegistrationScreen
+import ru.mareanexx.carsharing.ui.screens.main.CarsAtLocationScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.PersonalInfoScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.RentalHistoryScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.SupportHistoryScreen
@@ -36,6 +37,10 @@ fun AppNavHost(navController: NavHostController) {
         composable("personal_info/{idUser}") { backStackEntry ->
             val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
             PersonalInfoScreen(navController, idUser = idUser)
+        }
+        composable("loc-{idLocation}/cars") { backStackEntry ->
+            val idLocation = backStackEntry.arguments?.getString("idLocation")?.toIntOrNull() ?: return@composable
+            CarsAtLocationScreen(navController, idLocation = idLocation)
         }
     }
 }

@@ -52,7 +52,7 @@ fun RegistrationScreen(
 
     Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(white)) {
         Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-        PreviousButtonLogin() {
+        PreviousButtonLogin {
             navController?.navigate("home") ?: Log.e("NAV_CONTROLLER", "Cant navigate to home from registrScreen")
         }
         Spacer(modifier = Modifier.height(60.dp))

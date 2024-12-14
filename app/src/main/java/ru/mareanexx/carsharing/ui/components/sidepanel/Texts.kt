@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mareanexx.carsharing.ui.theme.black
-import ru.mareanexx.carsharing.ui.theme.errorLogin
 
 @Composable
 fun MainTextInTitleZone(
