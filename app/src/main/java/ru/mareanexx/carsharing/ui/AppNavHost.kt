@@ -43,9 +43,10 @@ fun AppNavHost(navController: NavHostController) {
             val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
             PersonalInfoScreen(navController, idUser = idUser)
         }
-        composable("loc-{idLocation}/cars") { backStackEntry ->
+        composable("loc-{idLocation}/cars/{idUser}") { backStackEntry ->
             val idLocation = backStackEntry.arguments?.getString("idLocation")?.toIntOrNull() ?: return@composable
-            CarsAtLocationScreen(navController, idLocation = idLocation)
+            val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
+            CarsAtLocationScreen(navController, idLocation = idLocation, idUser = idUser)
         }
     }
 }

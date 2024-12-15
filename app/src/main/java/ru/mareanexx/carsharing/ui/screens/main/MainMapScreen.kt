@@ -1,5 +1,6 @@
 package ru.mareanexx.carsharing.ui.screens.main
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -54,7 +55,7 @@ import ru.mareanexx.carsharing.ui.viewmodel.LocationViewModel
 @Composable
 fun MainMapScreen(
     navController: NavController? = null,
-    locationViewModel: LocationViewModel = viewModel(),
+    locationViewModel: LocationViewModel = viewModel(key = "location"),
     idUser: Int
 ) {
     val locations by locationViewModel.locations.collectAsState()
@@ -81,7 +82,7 @@ fun MainMapScreen(
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
-                YandexMap(locations)
+                YandexMap(locations, navController!!, idUser)
             }
 
             Column(
@@ -131,7 +132,11 @@ fun MainMapScreen(
 }
 
 @Composable
-fun YandexMap(locations: List<Location>) {
+fun YandexMap(
+    locations: List<Location>,
+    navController: NavController,
+    idUser: Int
+) {
     val currentContext = LocalContext.current
     val mapView = remember {
         MapView(currentContext)
@@ -156,11 +161,19 @@ fun YandexMap(locations: List<Location>) {
                 null
             )
             for (location in locations) {
+                val point = Point(location.latitude.toDouble(), location.longitude.toDouble())
                 val bitmap = createBitmapFromView(context, location.name)
-                // метка с иконкой и текстом
-                mapWindow.map.mapObjects.addPlacemark().apply {
-                    geometry = Point(location.latitude.toDouble(), location.longitude.toDouble())
+
+                val placeMark = mapWindow.map.mapObjects.addPlacemark().apply {
+                    Log.d("LOCATION", "Создается placemark")
+                    geometry = point
                     setIcon(ImageProvider.fromBitmap(bitmap))
+                }
+
+                placeMark.addTapListener { _, _ ->
+                    Log.d("LOCATION", "Хочу перенаправить на другой экран -- loc-${location.idLocation}/cars/$idUser")
+                    navController.navigate("loc-${location.idLocation}/cars/$idUser")
+                    true
                 }
             }
 

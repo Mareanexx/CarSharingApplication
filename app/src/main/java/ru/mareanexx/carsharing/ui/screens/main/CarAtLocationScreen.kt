@@ -53,13 +53,16 @@ import ru.mareanexx.carsharing.ui.theme.prevBtn
 import ru.mareanexx.carsharing.ui.theme.titleTextColor
 import ru.mareanexx.carsharing.ui.theme.white
 import ru.mareanexx.carsharing.ui.viewmodel.CarViewModel
+import ru.mareanexx.carsharing.ui.viewmodel.LocationViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CarsAtLocationScreen(
     navController: NavController? = null,
     carViewModel: CarViewModel = viewModel(),
-    idLocation: Int
+    locationViewModel: LocationViewModel = viewModel(key = "location"),
+    idLocation: Int,
+    idUser: Int
 ) {
     val carsAtLocation by carViewModel.carsAtLocation.collectAsState()
     val loading by carViewModel.loading.collectAsState()
@@ -98,7 +101,7 @@ fun CarsAtLocationScreen(
                     .fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-                PreviusButton { navController?.navigate("home_map/") }
+                PreviusButton { navController?.navigate("home_map/$idUser") }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -114,7 +117,7 @@ fun CarsAtLocationScreen(
                             .padding(end = 6.dp)
                             .size(24.dp)
                     )
-                    MainLocationTitle("Район Раменки")
+                    MainLocationTitle(locationViewModel.getLocationTitleById(idLocation))
                 }
 
                 Column(
@@ -174,5 +177,5 @@ fun CarsAtLocationScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun CarsAtLocationScreenPreview() {
-    CarsAtLocationScreen(idLocation = 1)
+    CarsAtLocationScreen(idLocation = 1, idUser = 1)
 }

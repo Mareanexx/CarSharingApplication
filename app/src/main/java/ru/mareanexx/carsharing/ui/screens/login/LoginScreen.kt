@@ -94,30 +94,10 @@ fun AuthenticationScreen(
                         Log.d("LOGIN_SUCCESS", "Token: $token")
                         showError = false
 
-                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ. Это передача user Id.
-                        // Это передача userId в rental_history экран
-                        /* authViewModel.userIdValue.value?.let { userId ->
-                            navController?.navigate("rental_history/$userId")
-                        } */
-
-                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ. Это передача user Id.
-                        // Это передача userId в Support History экран
-                        /* authViewModel.userIdValue.value?.let {
-                            idUser -> navController?.navigate("support_history/$idUser")
-                        } */
-
-                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ. Это передача user Id.
-                        // Это передача userId в Personal Info экран
-                        /* authViewModel.userIdValue.value?.let {
-                            idUser -> navController?.navigate("personal_info/$idUser")
-                        } */
-
-                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ
-                        // Это переход в CarsAtLocationScreen и передача константы idLocation = 1
-                        // navController?.navigate("loc-1/cars")
-
                         authViewModel.userIdValue.value?.let {
-                            idUser -> navController?.navigate("home_map/$idUser")
+                            idUser ->
+                            Log.d("AUTH", "User with id = $idUser направляем на страницу home_map/$idUser")
+                            navController?.navigate("home_map/$idUser")
                         }
                     },
                     onError = {
