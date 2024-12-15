@@ -114,8 +114,12 @@ fun AuthenticationScreen(
 
                         // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ
                         // Это переход в CarsAtLocationScreen и передача константы idLocation = 1
-                        navController?.navigate("loc-1/cars")
+                        // navController?.navigate("loc-1/cars")
 
+
+                        // ВОТ ЭТО НУЖНО ОТСЮДА УБРАТЬ
+                        // Это переход в MainMapScreen и передача константы idLocation = 1
+                        navController?.navigate("home_map")
 
                     },
                     onError = {

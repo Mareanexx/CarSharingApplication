@@ -62,16 +62,18 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
-    // implementation(libs.androidx.ui)
+    // Это мб высер но подключение прошлых версий, чтобы работал ModalSheet
     implementation("androidx.compose.ui:ui:1.5.1")
     implementation("androidx.compose.material:material:1.5.1")
     implementation("androidx.compose.material3:material3:1.2.0")
 
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    // implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.runtime.livedata)
+
+    // API карт
+    implementation(libs.maps.mobile)
 
     // test and debug
     testImplementation(libs.junit)
