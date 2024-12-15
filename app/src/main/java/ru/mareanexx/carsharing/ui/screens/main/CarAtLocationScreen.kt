@@ -98,7 +98,7 @@ fun CarsAtLocationScreen(
                     .fillMaxSize()
             ) {
                 Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-                PreviusButton { navController?.navigate("previous_screen") }
+                PreviusButton { navController?.navigate("home_map/") }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

@@ -60,3 +60,7 @@ val backgroundFrame = Color(0x993B3B3B)
 val btnMinutesColor = Color(0x4D000000)
 
 val characteristicCar = Color(0xFF979797)
+
+
+/* Navigation Panel */
+val navigationText = Color(0x99000000)

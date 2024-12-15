@@ -34,15 +34,15 @@ import java.util.Locale
 fun RentalHistoryScreen(
     navController: NavController? = null,
     rentalHistoryViewModel: RentalHistoryViewModel = viewModel(),
-    userId: Int
+    idUser: Int
 ) {
     val rentalHistory by rentalHistoryViewModel.rentalHistory.collectAsState()
     val loading by rentalHistoryViewModel.loading.collectAsState()
 
     // триггер
-    LaunchedEffect(userId) {
+    LaunchedEffect(idUser) {
         rentalHistoryViewModel.fetchRentalHistory(
-            userId = userId,
+            userId = idUser,
             onError = {  }
         )
     }
@@ -51,7 +51,7 @@ fun RentalHistoryScreen(
         modifier = Modifier.background(white).padding(horizontal = 20.dp).fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-        PreviusButton { navController?.navigate("previous_screen") }
+        PreviusButton { navController?.navigate("home_map/$idUser") }
 
         MainTextInTitleZone("История поездок")
 
@@ -89,5 +89,5 @@ fun RentalHistoryScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewHistoryScreen() {
-    RentalHistoryScreen(userId = 1)
+    RentalHistoryScreen(idUser = 1)
 }

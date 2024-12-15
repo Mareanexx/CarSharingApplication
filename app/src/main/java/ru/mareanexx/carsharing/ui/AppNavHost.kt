@@ -13,7 +13,6 @@ import ru.mareanexx.carsharing.ui.screens.sidepanel.PersonalInfoScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.RentalHistoryScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.SupportHistoryScreen
 import ru.mareanexx.carsharing.ui.screens.sidepanel.SupportMakeNewScreen
-import kotlin.random.Random
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -24,12 +23,13 @@ fun AppNavHost(navController: NavHostController) {
         composable("home") { HomeScreen(navController) }
         composable("login") { AuthenticationScreen(navController) }
         composable("registration") { RegistrationScreen(navController) }
-        composable("home_map") {
-            MainMapScreen(navController = navController, randomKey = 1)
+        composable("home_map/{idUser}") { backStackEntry ->
+            val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
+            MainMapScreen(navController = navController, idUser = idUser)
         }
-        composable("rental_history/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: return@composable
-            RentalHistoryScreen(navController = navController, userId = userId)
+        composable("rental_history/{idUser}") { backStackEntry ->
+            val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
+            RentalHistoryScreen(navController = navController, idUser = idUser)
         }
         composable("support_history/{idUser}") { backStackEntry ->
             val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable

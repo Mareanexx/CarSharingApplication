@@ -66,7 +66,7 @@ fun PersonalInfoScreen(
         modifier = Modifier.background(white).padding(horizontal = 20.dp).fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-        PreviusButton { TODO() } // здесь ONCLICK
+        PreviusButton { navController?.navigate("home_map/$idUser") } // здесь ONCLICK
         MainTextInTitleZone("Личные данные")
 
         // блок с личной инфой

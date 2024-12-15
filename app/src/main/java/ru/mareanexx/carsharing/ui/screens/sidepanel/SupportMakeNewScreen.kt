@@ -65,7 +65,7 @@ fun SupportMakeNewScreen(
         modifier = Modifier.background(white).padding(horizontal = 20.dp).fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
-        PreviusButton { navController?.navigate("previous_screen") } // здесь ONCLICK
+        PreviusButton { navController?.navigate("home_map/$idUser") } // здесь ONCLICK
         MainTextInTitleZone("Поддержка")
 
         // Переключатель История и Новое

@@ -1,6 +1,7 @@
 package ru.mareanexx.carsharing.ui.screens.main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,14 +12,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -37,8 +42,10 @@ import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapType
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
+import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.data.models.Location
 import ru.mareanexx.carsharing.ui.components.map.createBitmapFromView
+import ru.mareanexx.carsharing.ui.components.navigation.MainNavigationPanel
 import ru.mareanexx.carsharing.ui.theme.black
 import ru.mareanexx.carsharing.ui.theme.cherry
 import ru.mareanexx.carsharing.ui.theme.white
@@ -48,62 +55,79 @@ import ru.mareanexx.carsharing.ui.viewmodel.LocationViewModel
 fun MainMapScreen(
     navController: NavController? = null,
     locationViewModel: LocationViewModel = viewModel(),
-    randomKey: Int
+    idUser: Int
 ) {
     val locations by locationViewModel.locations.collectAsState()
     val loading by locationViewModel.loading.collectAsState()
 
-    LaunchedEffect(randomKey) {
+    // Состояние для управления видимостью боковой панели
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(idUser) {
         locationViewModel.getAllLocations()
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            MainNavigationPanel(navController = navController, idUser = idUser)
+        }
     ) {
-
-        if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else {
-            YandexMap(locations)
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 15.dp,
-                    shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
-                )
-                .background(
-                    color = white,
-                    shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
-                )
-                .padding(top = 40.dp, bottom = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = "Shérimobile",
-                color = cherry,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
-        }
-        Column(
-            modifier = Modifier.padding(top = 100.dp, start = 20.dp)
-        ) {
-            Icon(
-                Icons.Default.Menu,
-                contentDescription = "Menu",
-                tint = black,
-                modifier = Modifier.size(40.dp).shadow(7.dp, RoundedCornerShape(10.dp)).background(
-                    color = white,
-                    shape = RoundedCornerShape(10.dp)
-                ).padding(horizontal = 7.dp)
-            )
-        }
 
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                YandexMap(locations)
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 15.dp,
+                        shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .background(
+                        color = white,
+                        shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .padding(top = 40.dp, bottom = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Shérimobile",
+                    color = cherry,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+            }
+            Column(
+                modifier = Modifier.padding(top = 100.dp, start = 20.dp)
+            ) {
+                Icon(
+                    Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = black,
+                    modifier = Modifier.size(40.dp).shadow(7.dp, RoundedCornerShape(10.dp)).background(
+                        color = white,
+                        shape = RoundedCornerShape(10.dp)
+                    ).padding(horizontal = 7.dp)
+                    .clickable {
+                        // Открыть боковую панель
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+        }
     }
+
 }
 
 @Composable
@@ -127,7 +151,7 @@ fun YandexMap(locations: List<Location>) {
         factory = { mapView.apply {
             mapWindow.map.mapType = MapType.MAP
             mapWindow.map.move(
-                CameraPosition(Point(55.7006880, 37.5088020), 15.0f, 0.0f, 0.0f),
+                CameraPosition(Point(55.703691, 37.511196), 15.0f, 0.0f, 0.0f),
                 Animation(Animation.Type.SMOOTH, 0f),
                 null
             )
