@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.yandex.mapkit.MapKitFactory
 import ru.mareanexx.carsharing.ui.AppNavHost
+import ru.mareanexx.carsharing.utils.UserStore
 
 
 class MainActivity : ComponentActivity() {
@@ -19,9 +20,11 @@ class MainActivity : ComponentActivity() {
         MapKitFactory.setLocale("ru_RU")
         MapKitFactory.initialize(this)
 
+        val userStore = UserStore(applicationContext)
+
         setContent {
             val navController = rememberNavController()
-            AppNavHost(navController)
+            AppNavHost(navController, userStore)
         }
     }
 }

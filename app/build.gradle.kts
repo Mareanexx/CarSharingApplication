@@ -72,6 +72,9 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.runtime.livedata)
 
+    // Для хранения данных после закрытия приложения
+    implementation(libs.androidx.datastore.preferences)
+
     // API карт
     implementation(libs.maps.mobile)
 

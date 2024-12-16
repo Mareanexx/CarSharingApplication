@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.R
 import ru.mareanexx.carsharing.ui.components.sidepanel.MainTextInTitleZone
 import ru.mareanexx.carsharing.ui.components.sidepanel.PersonalInfoRowOfInfo
@@ -46,13 +48,16 @@ import ru.mareanexx.carsharing.ui.theme.titleTextColor
 import ru.mareanexx.carsharing.ui.theme.valueTextColor
 import ru.mareanexx.carsharing.ui.theme.white
 import ru.mareanexx.carsharing.ui.viewmodel.PersonalInfoViewModel
+import ru.mareanexx.carsharing.utils.UserStore
 
 @Composable
 fun PersonalInfoScreen(
     navController: NavController? = null,
     personalInfoViewModel: PersonalInfoViewModel = viewModel(),
+    userStore: UserStore,
     idUser: Int
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val personalInfo by personalInfoViewModel.personalInfo.collectAsState()
     val loading by personalInfoViewModel.loading.collectAsState()
 
@@ -129,6 +134,9 @@ fun PersonalInfoScreen(
                 fontSize = 16.sp,
                 letterSpacing = 0.1.sp,
                 modifier = Modifier.padding(start = 6.dp).clickable {
+                    coroutineScope.launch {
+                        userStore.clearUser()
+                    }
                     navController?.navigate("home") {
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
@@ -195,11 +203,4 @@ fun DocumentComponent() {
             )
         )
     }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun PreviewPersInfoScreen() {
-    PersonalInfoScreen(idUser = 1)
 }

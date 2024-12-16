@@ -18,15 +18,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.ui.components.auth.AuthButton
 import ru.mareanexx.carsharing.ui.components.auth.ErrorLoginText
 import ru.mareanexx.carsharing.ui.components.auth.InputTextWithLabel
@@ -39,13 +40,17 @@ import ru.mareanexx.carsharing.ui.theme.cherry
 import ru.mareanexx.carsharing.ui.theme.nameAboveTextField
 import ru.mareanexx.carsharing.ui.theme.white
 import ru.mareanexx.carsharing.ui.viewmodel.AuthViewModel
+import ru.mareanexx.carsharing.utils.UserStore
 
 @Composable
 fun AuthenticationScreen(
     navController: NavController? = null,
+    userStore: UserStore,
     authViewModel: AuthViewModel = viewModel()
 )
 {
+    val coroutineScope = rememberCoroutineScope()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -94,10 +99,17 @@ fun AuthenticationScreen(
                         Log.d("LOGIN_SUCCESS", "Token: $token")
                         showError = false
 
+
+
                         authViewModel.userIdValue.value?.let {
                             idUser ->
+                            coroutineScope.launch {
+                                userStore.saveUser(true, idUser)
+                            }
                             Log.d("AUTH", "User with id = $idUser направляем на страницу home_map/$idUser")
-                            navController?.navigate("home_map/$idUser")
+                            navController?.navigate("home_map/$idUser") {
+                                popUpTo("login") { inclusive = true }
+                            }
                         }
                     },
                     onError = {
@@ -115,8 +127,8 @@ fun AuthenticationScreen(
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun AuthPreview() {
-    AuthenticationScreen()
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun AuthPreview() {
+//    AuthenticationScreen()
+//}
