@@ -34,16 +34,16 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            delay(2000)
+            delay(1000)
             if (isLoggedIn.value) {
                 Log.d("STORE", "User existed with id = ${idUser.value}, ${isLoggedIn.value}")
-                // Пользователь авторизован
+                // авторизован
                 navController.navigate("home_map/${idUser.value}") {
                     popUpTo("splash") { inclusive = true }
                 }
             } else {
                 Log.d("STORE", "User doesnt exist with id = $idUser, $isLoggedIn")
-                // Пользователь не авторизован
+                // не авторизован
                 navController.navigate("home") {
                     popUpTo("splash") { inclusive = true }
                 }

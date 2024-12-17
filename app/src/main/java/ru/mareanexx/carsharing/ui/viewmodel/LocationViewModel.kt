@@ -41,12 +41,4 @@ class LocationViewModel : ViewModel() {
             }
         }
     }
-
-    fun getLocationTitleById(idLocation: Int) : String {
-        Log.d("LOCATION", "Смотрим есть ли локация с idLocation = $idLocation")
-        Log.d("LOCATION", "Вот все локации : ${_locations.value}")
-        return _locations.value.find {
-            it.idLocation == idLocation
-        }?.name ?: "Локация"
-    }
 }

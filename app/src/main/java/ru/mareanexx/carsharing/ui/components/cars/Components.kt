@@ -23,32 +23,47 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.R
 import ru.mareanexx.carsharing.data.models.Car
+import ru.mareanexx.carsharing.ui.components.auth.AuthButton
+import ru.mareanexx.carsharing.ui.theme.backgroundBtn
 import ru.mareanexx.carsharing.ui.theme.backgroundCarCard
 import ru.mareanexx.carsharing.ui.theme.backgroundFrame
 import ru.mareanexx.carsharing.ui.theme.black
+import ru.mareanexx.carsharing.ui.theme.blackBtn
 import ru.mareanexx.carsharing.ui.theme.btnMinutesColor
 import ru.mareanexx.carsharing.ui.theme.carNameColor
 import ru.mareanexx.carsharing.ui.theme.characteristicCar
+import ru.mareanexx.carsharing.ui.theme.cherry
 import ru.mareanexx.carsharing.ui.theme.prevBtn
 import ru.mareanexx.carsharing.ui.theme.textInFrame
 import ru.mareanexx.carsharing.ui.theme.titleTextColor
+import ru.mareanexx.carsharing.ui.theme.valueTextColor
 import ru.mareanexx.carsharing.ui.theme.white
 import kotlin.random.Random
 
@@ -115,9 +130,9 @@ fun CarCard(
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            ButtonRentByTime("Минуты", "${car.pricePerMinute}", Modifier.weight(0.5f), btnMinutesColor, 13.sp, 10.sp) { }
+            ButtonRentByTime("Минуты", "мин", "${car.pricePerMinute}", Modifier.weight(0.5f), btnMinutesColor, 16.sp, 11.sp) { }
             Spacer(modifier = Modifier.width(10.dp))
-            ButtonRentByTime("Часы", "${car.pricePerHour}", Modifier.weight(0.5f), carNameColor, 13.sp, 10.sp) { }
+            ButtonRentByTime("Часы", "час", "${car.pricePerHour}", Modifier.weight(0.5f), carNameColor, 16.sp, 11.sp) { }
         }
     }
 }
@@ -126,6 +141,7 @@ fun CarCard(
 @Composable
 fun ButtonRentByTime(
     minuteOrHour: String,
+    textSmall: String,
     price: String,
     modifier: Modifier,
     containerColor: Color,
@@ -140,7 +156,7 @@ fun ButtonRentByTime(
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor
         ),
-        contentPadding = PaddingValues(vertical = 2.dp)
+        contentPadding = PaddingValues(vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -151,7 +167,7 @@ fun ButtonRentByTime(
                 lineHeight = 8.sp
             )
             Text(
-                text = "от $price ₽/мин",
+                text = "от $price ₽/$textSmall",
                 fontSize = valueTextSize,
                 lineHeight = 8.sp,
                 fontWeight = FontWeight.Normal
@@ -168,12 +184,23 @@ fun makeDistanceAndFuelText(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarDetailsBottomSheetContent(
     car: Car,
     context: Context,
     onClose: () -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    var chosenType by remember { mutableStateOf("") }
+    var chosenTypeShort by remember { mutableStateOf("") }
+    var chosenPrice by remember { mutableStateOf("") }
+
     val resourceId = remember(car.imagePath) {
         context.resources.getIdentifier(car.imagePath, "drawable", context.packageName)
     }
@@ -187,7 +214,7 @@ fun CarDetailsBottomSheetContent(
         modifier = Modifier.background(
             color = white,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-        ).padding(horizontal = 30.dp, vertical = 20.dp).fillMaxWidth()
+        ).padding(horizontal = 30.dp, vertical = 20.dp).fillMaxWidth() // здесь был vertical = 20.dp
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -246,8 +273,9 @@ fun CarDetailsBottomSheetContent(
                 text = "Характеристики",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
-                color = black,
-                modifier = Modifier.padding(bottom = 2.dp)
+                color = titleTextColor,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 2.dp).fillMaxWidth()
             )
             CharacteristicCar("КПП тип", makeTransmissionString(car.transmission))
             CharacteristicCar("Привод", makeDriveTypeString(car.driveType))
@@ -264,16 +292,56 @@ fun CarDetailsBottomSheetContent(
         Column(
             modifier = Modifier.padding(top = 25.dp).fillMaxWidth()
         ) {
-            ButtonRentByTime("Минуты", "${car.pricePerMinute}", Modifier.fillMaxWidth(), btnMinutesColor, 16.sp, 11.sp) { }
+            ButtonRentByTime("Минуты", "мин", "${car.pricePerMinute}", Modifier.fillMaxWidth(), btnMinutesColor, 16.sp, 11.sp) {
+                chosenType = "Минуты"
+                chosenPrice = "${car.pricePerMinute}"
+                chosenTypeShort = "мин"
+                showBottomSheet = true
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                ButtonRentByTime("Часы", "${car.pricePerHour}", Modifier.weight(0.5f), carNameColor, 16.sp, 11.sp) { }
+                ButtonRentByTime("Часы", "час", "${car.pricePerHour}", Modifier.weight(0.5f), carNameColor, 16.sp, 11.sp) {
+                    chosenType = "Часы"
+                    chosenPrice = "${car.pricePerHour}"
+                    chosenTypeShort = "час"
+                    showBottomSheet = true
+                }
                 Spacer(modifier = Modifier.width(10.dp))
-                ButtonRentByTime("Дни", "${car.pricePerDay}", Modifier.weight(0.5f), carNameColor, 16.sp, 11.sp) { }
+                ButtonRentByTime("Дни", "день", "${car.pricePerDay}", Modifier.weight(0.5f), cherry, 16.sp, 11.sp) {
+                    chosenType = "Дни"
+                    chosenPrice = "${car.pricePerDay}"
+                    chosenTypeShort = "день"
+                    showBottomSheet = true
+                }
             }
         }
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(30.dp))
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                scrimColor = titleTextColor,
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                containerColor = white,
+                dragHandle = null,
+                sheetState = sheetState
+            ) {
+                RentalDetailsBottomSheet(
+                    chosenType = chosenType,
+                    chosenTypeShort = chosenTypeShort,
+                    chosenPrice = chosenPrice
+                ) {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -375,6 +443,102 @@ fun makeDriveTypeString(type: String) = when(type) {
     else -> "Никакой"
 }
 
+@Composable
+fun RentalDetailsBottomSheet(
+    chosenType: String,
+    chosenTypeShort: String,
+    chosenPrice: String,
+    onClose: () -> Unit
+) {
+    Column(
+        modifier = Modifier.background(
+            color = white,
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+        ).padding(horizontal = 30.dp, vertical = 20.dp).fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(bottom = 7.dp)
+        ) {
+            Text(
+                text = chosenType,
+                color = black,
+                fontWeight = FontWeight.Medium,
+                lineHeight = 20.sp,
+                fontSize = 26.sp
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null,
+                modifier = Modifier.background(
+                    color = prevBtn,
+                    shape = RoundedCornerShape(10.dp)
+                ).padding(4.dp).clickable(onClick = onClose),
+                tint = titleTextColor
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            RentalBlockText(
+                painterResource(id = R.drawable.schedule),
+                textTitle = "5 минут",
+                bottomText = "Время бесплатной брони"
+            )
+            RentalBlockText(
+                painterResource(id = R.drawable.directions_car),
+                textTitle = "$chosenPrice руб/$chosenTypeShort",
+                bottomText = "Выбранный тариф"
+            )
+
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        AuthButton(white, blackBtn, "ЗАБРОНИРОВАТЬ") { }
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
+@Composable
+fun RentalBlockText(
+    icon : Painter,
+    textTitle: String,
+    bottomText: String
+) {
+    Row(
+        modifier = Modifier.padding(top = 10.dp).fillMaxWidth().background(
+            color = backgroundBtn,
+            shape = RoundedCornerShape(10.dp)
+        ).padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = "Time",
+            tint = titleTextColor,
+            modifier = Modifier.size(27.dp)
+        )
+        Column(
+            modifier = Modifier.padding(start = 15.dp)
+        ) {
+            Text(
+                text = textTitle,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = titleTextColor,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = bottomText,
+                fontSize = 12.sp,
+                color = valueTextColor,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewCarDetails() {
@@ -386,5 +550,6 @@ fun PreviewCarDetails() {
                 90, 70, "AUTOMATIC", "AWD", 2.0.toBigDecimal(), 190,
                 true, false, true, true, 10.4.toBigDecimal(), 340.toBigDecimal(), 4543.4.toBigDecimal())
         , LocalContext.current) { }
+//        RentalDetailsBottomSheet("Минуты", "мин", "15.45") {}
     }
 }

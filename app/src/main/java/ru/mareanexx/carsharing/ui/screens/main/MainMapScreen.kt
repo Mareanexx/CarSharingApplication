@@ -172,7 +172,8 @@ fun YandexMap(
 
                 placeMark.addTapListener { _, _ ->
                     Log.d("LOCATION", "Хочу перенаправить на другой экран -- loc-${location.idLocation}/cars/$idUser")
-                    navController.navigate("loc-${location.idLocation}/cars/$idUser")
+                    val locationTitle = location.name
+                    navController.navigate("loc-${location.idLocation}/cars/$idUser?title=$locationTitle")
                     true
                 }
             }

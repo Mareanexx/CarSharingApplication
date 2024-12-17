@@ -62,10 +62,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
-    // Это мб высер но подключение прошлых версий, чтобы работал ModalSheet
+    // Это мб высер но подключение прошлых версий, чтобы работал ModalBottomSheet
     implementation("androidx.compose.ui:ui:1.5.1")
-    implementation("androidx.compose.material:material:1.5.1")
-    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation(libs.material3)
 
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)

@@ -1,9 +1,12 @@
 package ru.mareanexx.carsharing.ui
 
 import androidx.compose.runtime.Composable
+import androidx.datastore.preferences.core.PreferencesSerializer.defaultValue
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import ru.mareanexx.carsharing.ui.screens.login.AuthenticationScreen
 import ru.mareanexx.carsharing.ui.screens.login.HomeScreen
 import ru.mareanexx.carsharing.ui.screens.login.RegistrationScreen
@@ -47,10 +50,24 @@ fun AppNavHost(navController: NavHostController, userStore: UserStore) {
             val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
             PersonalInfoScreen(navController, idUser = idUser, userStore = userStore)
         }
-        composable("loc-{idLocation}/cars/{idUser}") { backStackEntry ->
-            val idLocation = backStackEntry.arguments?.getString("idLocation")?.toIntOrNull() ?: return@composable
-            val idUser = backStackEntry.arguments?.getString("idUser")?.toIntOrNull() ?: return@composable
-            CarsAtLocationScreen(navController, idLocation = idLocation, idUser = idUser)
+        composable(
+            "loc-{idLocation}/cars/{idUser}?title={title}",
+            arguments = listOf(
+                navArgument("idLocation") { type = NavType.IntType },
+                navArgument("idUser") { type = NavType.IntType },
+                navArgument("title") { type = NavType.StringType; defaultValue = "Локация" }
+            )
+        ) { backStackEntry ->
+            val idLocation = backStackEntry.arguments?.getInt("idLocation") ?: 0
+            val idUser = backStackEntry.arguments?.getInt("idUser") ?: 0
+            val title = backStackEntry.arguments?.getString("title") ?: "Локация"
+
+            CarsAtLocationScreen(
+                navController = navController,
+                idLocation = idLocation,
+                idUser = idUser,
+                title = title
+            )
         }
     }
 }
