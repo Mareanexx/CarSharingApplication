@@ -39,17 +39,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.R
 import ru.mareanexx.carsharing.data.models.Car
+import ru.mareanexx.carsharing.data.models.NewReservationRequest
 import ru.mareanexx.carsharing.ui.components.auth.AuthButton
 import ru.mareanexx.carsharing.ui.theme.backgroundBtn
 import ru.mareanexx.carsharing.ui.theme.backgroundCarCard
@@ -65,6 +66,8 @@ import ru.mareanexx.carsharing.ui.theme.textInFrame
 import ru.mareanexx.carsharing.ui.theme.titleTextColor
 import ru.mareanexx.carsharing.ui.theme.valueTextColor
 import ru.mareanexx.carsharing.ui.theme.white
+import ru.mareanexx.carsharing.ui.viewmodel.ReservationViewModel
+import java.math.BigDecimal
 import kotlin.random.Random
 
 
@@ -188,7 +191,9 @@ fun makeDistanceAndFuelText(
 @Composable
 fun CarDetailsBottomSheetContent(
     car: Car,
+    idUser: Int,
     context: Context,
+    navController: NavController,
     onClose: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -199,7 +204,7 @@ fun CarDetailsBottomSheetContent(
 
     var chosenType by remember { mutableStateOf("") }
     var chosenTypeShort by remember { mutableStateOf("") }
-    var chosenPrice by remember { mutableStateOf("") }
+    var chosenPrice by remember { mutableStateOf(BigDecimal(0)) }
 
     val resourceId = remember(car.imagePath) {
         context.resources.getIdentifier(car.imagePath, "drawable", context.packageName)
@@ -294,7 +299,7 @@ fun CarDetailsBottomSheetContent(
         ) {
             ButtonRentByTime("Минуты", "мин", "${car.pricePerMinute}", Modifier.fillMaxWidth(), btnMinutesColor, 16.sp, 11.sp) {
                 chosenType = "Минуты"
-                chosenPrice = "${car.pricePerMinute}"
+                chosenPrice = car.pricePerMinute
                 chosenTypeShort = "мин"
                 showBottomSheet = true
             }
@@ -303,14 +308,14 @@ fun CarDetailsBottomSheetContent(
             ) {
                 ButtonRentByTime("Часы", "час", "${car.pricePerHour}", Modifier.weight(0.5f), carNameColor, 16.sp, 11.sp) {
                     chosenType = "Часы"
-                    chosenPrice = "${car.pricePerHour}"
+                    chosenPrice = car.pricePerHour
                     chosenTypeShort = "час"
                     showBottomSheet = true
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 ButtonRentByTime("Дни", "день", "${car.pricePerDay}", Modifier.weight(0.5f), cherry, 16.sp, 11.sp) {
                     chosenType = "Дни"
-                    chosenPrice = "${car.pricePerDay}"
+                    chosenPrice = car.pricePerDay
                     chosenTypeShort = "день"
                     showBottomSheet = true
                 }
@@ -330,9 +335,12 @@ fun CarDetailsBottomSheetContent(
                 sheetState = sheetState
             ) {
                 RentalDetailsBottomSheet(
+                    idUser = idUser,
+                    idCar = car.idCar,
                     chosenType = chosenType,
                     chosenTypeShort = chosenTypeShort,
-                    chosenPrice = chosenPrice
+                    chosenPrice = chosenPrice,
+                    navigateTo = { navController.navigate("home_map/$idUser") }
                 ) {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
@@ -445,9 +453,13 @@ fun makeDriveTypeString(type: String) = when(type) {
 
 @Composable
 fun RentalDetailsBottomSheet(
+    idUser: Int,
+    idCar: Int,
+    reservationViewModel: ReservationViewModel = viewModel(),
     chosenType: String,
     chosenTypeShort: String,
-    chosenPrice: String,
+    chosenPrice: BigDecimal,
+    navigateTo: () -> Unit,
     onClose: () -> Unit
 ) {
     Column(
@@ -494,9 +506,24 @@ fun RentalDetailsBottomSheet(
 
         }
         Spacer(modifier = Modifier.height(20.dp))
-        AuthButton(white, blackBtn, "ЗАБРОНИРОВАТЬ") { }
-        Spacer(modifier = Modifier.height(20.dp))
+        AuthButton(white, blackBtn, "ЗАБРОНИРОВАТЬ") {
+            val rentalType = when(chosenType) {
+                "Минуты" -> "MINUTE"
+                "Часы" -> "HOUR"
+                "Дни" -> "DAY"
+                else -> "Nothing"
+            }
+            reservationViewModel.makeReservation(
+                NewReservationRequest(
+                    pricePerSmth = chosenPrice,
+                    idCar = idCar, idUser = idUser,
+                    rentalType = rentalType
+                ),
+                onSuccess = { navigateTo() },
+            )
+        }
     }
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
@@ -539,17 +566,17 @@ fun RentalBlockText(
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun PreviewCarDetails() {
-    Column(
-        modifier = Modifier.padding(top = 50.dp)
-    ) {
-        CarDetailsBottomSheetContent(
-            Car(1, "Audi", "Q5", "А 476 МН 797", "audiq5",
-                90, 70, "AUTOMATIC", "AWD", 2.0.toBigDecimal(), 190,
-                true, false, true, true, 10.4.toBigDecimal(), 340.toBigDecimal(), 4543.4.toBigDecimal())
-        , LocalContext.current) { }
-//        RentalDetailsBottomSheet("Минуты", "мин", "15.45") {}
-    }
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun PreviewCarDetails() {
+//    Column(
+//        modifier = Modifier.padding(top = 50.dp)
+//    ) {
+//        CarDetailsBottomSheetContent(
+//            Car(1, "Audi", "Q5", "А 476 МН 797", "audiq5",
+//                90, 70, "AUTOMATIC", "AWD", 2.0.toBigDecimal(), 190,
+//                true, false, true, true, 10.4.toBigDecimal(), 340.toBigDecimal(), 4543.4.toBigDecimal())
+//        , context = LocalContext.current) { }
+////        RentalDetailsBottomSheet("Минуты", "мин", "15.45") {}
+//    }
+//}

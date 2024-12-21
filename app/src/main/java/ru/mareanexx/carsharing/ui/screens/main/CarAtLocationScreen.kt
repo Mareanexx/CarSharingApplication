@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,7 +54,7 @@ import ru.mareanexx.carsharing.ui.viewmodel.CarViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarsAtLocationScreen(
-    navController: NavController? = null,
+    navController: NavController,
     carViewModel: CarViewModel = viewModel(),
     idLocation: Int,
     idUser: Int,
@@ -70,7 +70,7 @@ fun CarsAtLocationScreen(
     // Состояния для панели
     val coroutineScope = rememberCoroutineScope()
     var selectedCar by remember { mutableStateOf<Car?>(null) }
-    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+    val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -85,7 +85,7 @@ fun CarsAtLocationScreen(
         Spacer(modifier = Modifier.height(58.dp).fillMaxWidth())
         PreviusButton {
             Log.d("CARS", "Хочу перенаправить на другой экран home_map/$idUser")
-            navController?.navigate("home_map/$idUser")
+            navController.navigate("home_map/$idUser")
         }
 
         Row(
@@ -169,7 +169,9 @@ fun CarsAtLocationScreen(
             selectedCar?.let { car ->
                 CarDetailsBottomSheetContent(
                     car = car,
-                    context = LocalContext.current
+                    idUser = idUser,
+                    context = LocalContext.current,
+                    navController = navController,
                 ) {
                     coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
@@ -183,8 +185,8 @@ fun CarsAtLocationScreen(
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun CarsAtLocationScreenPreview() {
-    CarsAtLocationScreen(idLocation = 1, idUser = 1, title = "Локация")
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun CarsAtLocationScreenPreview() {
+//    CarsAtLocationScreen(idLocation = 1, idUser = 1, title = "Локация")
+//}

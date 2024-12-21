@@ -12,19 +12,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -47,26 +53,48 @@ import kotlinx.coroutines.launch
 import ru.mareanexx.carsharing.data.models.Location
 import ru.mareanexx.carsharing.ui.components.map.createBitmapFromView
 import ru.mareanexx.carsharing.ui.components.navigation.MainNavigationPanel
+import ru.mareanexx.carsharing.ui.components.rental.RentalBottomSheetOnMapScreen
+import ru.mareanexx.carsharing.ui.components.rental.TempRentalBlock
 import ru.mareanexx.carsharing.ui.theme.black
 import ru.mareanexx.carsharing.ui.theme.cherry
+import ru.mareanexx.carsharing.ui.theme.titleTextColor
 import ru.mareanexx.carsharing.ui.theme.white
 import ru.mareanexx.carsharing.ui.viewmodel.LocationViewModel
+import ru.mareanexx.carsharing.ui.viewmodel.RentalViewModel
+import ru.mareanexx.carsharing.utils.BottomSheetStatus
+import java.math.BigDecimal
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMapScreen(
     navController: NavController? = null,
     locationViewModel: LocationViewModel = viewModel(key = "location"),
+    rentalViewModel: RentalViewModel = viewModel(),
     idUser: Int
 ) {
+    // Локации на карте
     val locations by locationViewModel.locations.collectAsState()
     val loading by locationViewModel.loading.collectAsState()
+
+    // Текущая аренда для пользователя
+    val tempRental by rentalViewModel.activeRental.collectAsState()
 
     // Состояние для управления видимостью боковой панели
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    // Управление видимостью нижней панели
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var bottomSheetStatus by remember { mutableStateOf(BottomSheetStatus.FIRST_TIME) }
+
+    val isRentingForBlock by rentalViewModel.isRentedForBlock.collectAsState()
+
     LaunchedEffect(idUser) {
         locationViewModel.getAllLocations()
+        rentalViewModel.getActiveRental(idUser)
     }
 
     ModalNavigationDrawer(
@@ -122,6 +150,72 @@ fun MainMapScreen(
                         // Открыть боковую панель
                         scope.launch {
                             drawerState.open()
+                        }
+                    }
+                )
+            }
+
+            if (tempRental != null) {
+                TempRentalBlock("Haval Jolion", Modifier.align(Alignment.BottomEnd)) {
+                    scope.launch { sheetState.show() }.invokeOnCompletion {
+                        if (sheetState.isVisible) {
+                            showBottomSheet = true
+                        }
+                    }
+                } // Эта кнопка должна открывать нижнюю панель ModalBottomSheet
+            }
+        }
+
+        if (tempRental != null &&
+            bottomSheetStatus == BottomSheetStatus.FIRST_TIME) {
+            showBottomSheet = true
+        }
+
+        // Модальное окно снизу
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                scrimColor = titleTextColor,
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                containerColor = cherry,
+                dragHandle = null,
+                sheetState = sheetState
+            ) {
+                RentalBottomSheetOnMapScreen(
+                    rental = tempRental,
+                    context = LocalContext.current,
+                    isRentingParam = isRentingForBlock,
+                    onCompleteRent = {
+                        totalPrice: BigDecimal, duration: Int ->
+                        // Когда закрывается АРЕНДА
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                        rentalViewModel.completeActiveRental(totalPrice, duration)
+                    },
+                    onStartRent = {
+                        rentalViewModel.beginRenting(onError = {})
+                    },
+                    onRentCancel = {
+                        // Когда отменяется БРОНЬ
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                        rentalViewModel.closeActiveRental()
+                    },
+                    onClose = {
+                        // закрытие на кнопку | X |
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                                bottomSheetStatus = BottomSheetStatus.ON_CLICK
+                            }
                         }
                     }
                 )
@@ -226,5 +320,8 @@ fun PreviewMainMap() {
                 ).padding(horizontal = 7.dp)
             )
         }
+        TempRentalBlock("Haval Jolion", Modifier.align(Alignment.BottomEnd)) {
+
+        } // Эта кнопка должна открывать нижнюю панель ModalBottomSheet
     }
 }
