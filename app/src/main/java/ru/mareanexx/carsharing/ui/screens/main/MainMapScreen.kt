@@ -190,6 +190,7 @@ fun MainMapScreen(
                     onCompleteRent = {
                         totalPrice: BigDecimal, duration: Int ->
                         // Когда закрывается АРЕНДА
+
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 showBottomSheet = false

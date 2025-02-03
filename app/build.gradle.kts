@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "ru.mareanexx.carsharing"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -62,7 +62,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
-    // Это мб высер но подключение прошлых версий, чтобы работал ModalBottomSheet
     implementation("androidx.compose.ui:ui:1.5.1")
     implementation(libs.material3)
 
