@@ -1,9 +1,13 @@
-# Shérimobile
-[![made_by](https://img.shields.io/badge/made_by-Mareanexx-blue)](https://github.com/Mareanexx)
-[![compose](https://img.shields.io/badge/compose-v1.5.1-green)](https://developer.android.com/jetpack/androidx/releases/compose?hl=ru)
-[![prototype](https://img.shields.io/badge/prototype_in_figma-8A2BE2)](https://www.figma.com/design/cSw6qVk30nNih7WBfNKPHg/CarSharing-Sherimobile?node-id=0-1&p=f&t=8TNPbStbmE9dfemk-0)
+<h1 align="center">Shérimobile</h1>
 
+<p align="center">
+<a href="https://github.com/Mareanexx"><img src="https://img.shields.io/badge/made_by-Mareanexx-blue"></a>
+<a href="https://developer.android.com/jetpack/androidx/releases/compose?hl=ru"><img src="https://img.shields.io/badge/made_by-Mareanexx-blue"></a>
+<a href="https://www.figma.com/design/cSw6qVk30nNih7WBfNKPHg/CarSharing-Sherimobile?node-id=0-1&p=f&t=8TNPbStbmE9dfemk-0"><img src="https://img.shields.io/badge/prototype_in_figma-8A2BE2"></a>
+</p>
+<div align="center" width="100%">
 <img src="./readme_assets/banner.png" width="20%">
+</div>
 
 ## Описание
 **Sherimobile** — это Android-приложение для каршеринга, позволяющее пользователям арендовать автомобили через удобный и интуитивно понятный интерфейс.
